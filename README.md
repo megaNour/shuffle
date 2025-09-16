@@ -38,18 +38,37 @@ multiple flavors of your markdown without altering or duplicating the sources.
 
 ## A Concrete Use Case
 
-Organizing your md with love, you face your company's stupid guidelines and
-you realize there is no way around complying to them.
-Does it make sense ? No.
-Still, if you don't give him a solution, he will try to butcher your beautiful
-md... or worse, copy/paste manually sections and code snippets into a new source
-making it totally unmaintainable.
+You have a source `markdown` you crafted with love.
+It's so rationale, it's so elaborated, it is... sooo delicate! (at least to you)
 
-What about empowering him to generate his piece of... documentation easily for
-himself? So you can keep your really well made docs intact and make him work on
-everything other than shuffling all your work?
+The thing is `Bobby` the `CPO` wants it to be organized in
+his new - corporate - `Rainbow of Seasons` layout...
+so it sells better to whoever!
 
-Voilà! you need `shuffle`.
+`Bobby` decides to shuffle your `markdown`:
+
+- swapping sections
+- adding sections from multiple files
+- dropping sections
+- renaming sections
+- which means possibly change their hierarchy on the fly
+- oh, and `Bobby` IS productive BTW
+
+In the middle of that rework, you can find typo corrections etc... that you want
+to integrate, but it's all melted in the reshuffle.
+
+Oh, and `Bobby` doesn't know how to work with `git`! (busy)
+You! You just report the changes "when you have time (before tomorrow though)".
+
+In fact, `Bobby` has friends, `Jimmy` and `Timmy` also are poets.
+Obviously each one wants his own flavor of your markdown.
+
+What about empowering them to generate their own flavored documentation easily for
+themselves? This way you can keep your (really well-made) docs intact and easily
+incorporate the rest of their (less questionable) contributions
+that you do actually want in your single source of truth?
+
+Voilà! Enter `shuffle`.
 
 ## Specs
 
