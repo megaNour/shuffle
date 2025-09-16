@@ -23,7 +23,7 @@ will end up with the sections and their contents shuffled like so:
 ## TL;DR
 
 ```sh
-# if not installed, call shuffle.sh
+# Here installed as shuffle, otherwise call shuffle.sh
 shuffle -ip <target_dir> <input_stream > output.md
 shuffle -h # or --help
 shuffle -v # or -V or --version
@@ -58,6 +58,8 @@ Voilà! you need `shuffle`.
 - but `GNU` tools
 - conf files mode
 - interactive mode
+- input from stdin
+- outputs to stdout
 
 ## Requirements
 
@@ -75,6 +77,11 @@ Voilà! you need `shuffle`.
 - developed on `macOS` with explicit `GNU` tools calls
 - interactive mode works with a `VIM`-like editor
 - no test suit yet
+- only \`\`\` fences are considered for now, no \~~~, no \`\`\`\`+
+- fences must be well-formatted, no leading space chars
+- headers are not supported yet
+- footers are not considered footers yet
+- duplicate titles collisions are not handled yet (on the way)
 
 ## What Else
 
