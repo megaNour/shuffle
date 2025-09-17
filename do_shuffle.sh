@@ -5,21 +5,57 @@
 
 [ "$INTERACTIVE_ENABLED" ] && . "$ENTRY/3way.sh"
 
-trap 'exec 3<&- 4<&-' INT TERM EXIT
+cleanup() {
+  local status=$?
+  local pid_gawk=$1
+  shift
+  if [ -n "$pid_gawk" ]; then
+    kill "$pid_gawk"
+    wait "$pid_gawk" 2>/dev/null || : # NOTE: if the process is already dead, wait would error
+  fi
+  rm -f "$@"
+  exec 3<&- 4<&-
+  exit "$status"
+}
 
-exec 3<"$TARGET/$SHUFFLES"
-exec 4<"$TARGET/$RENAMES"
+trap 'cleanup "$pid_gawk" "$fifo_gawk"' INT TERM EXIT
 
-nb_sections=$(wc -l <"$TARGET/$SHUFFLES")
-i=1
-while :; do
-  read -r title <&3 || break
-  read -r rename <&4 || rename=$title
+fifo_gawk="/tmp/shuffle_gawk.$$"
+mkfifo "$fifo_gawk"
+exec 3<"$TARGET/$RENAMES"
+exec 4<>"$fifo_gawk"
 
-  # NOTE: De-escape '```' into '/' in a loop.
-  # Considering the probability this occurs, it seems cheaper than
-  # spawning (even a long-lived) sed to treat those.
-  target=$rename
+gawk '
+  /^[[:space:]]*$/{
+    blanks = blanks "\n" # buffer maybe useless newlines
+    last_line = $0
+    next
+  }
+  /^```/ {
+    fenced = 1 - fenced
+  }
+  /^#/ && !fenced && NR > 1 && last_line {
+    print ""
+  }
+  { # if there is content, print stored buffer and reset it
+    if (blanks != "") {
+      printf "%s", blanks
+      blanks=""
+    }
+    print $0 # Print all other lines
+    last_line = $0
+  }
+  END {
+    if (last_line != "") { print ""}
+  }
+  ' <&4 &
+pid_gawk=$!
+
+while read -r title; do
+  read -r rename <&3 || rename=$title # NOTE: || EOF fallback: swallow possible exit 1
+  rename=${rename:-$title}            # NOTE: empty line fallback: still verify we didn't just succesfully read an empty line
+
+  target=$title
   while :; do
     case "$target" in
     */*)
@@ -31,28 +67,7 @@ while :; do
     esac
   done
 
-  # NOTE: the original last section with only one '\n' might now be in the middle
-  # we need to ensure both:
-  # - it doesn't get slugged with the next section by adding a second '\n'
-  # - not every section gets an extra '\n'
-  # - for now the very last one will keep it if it already has it but
-  #   this seems to be a topic to tackle when shuffle handles footers.
-  [ "$i" != "$nb_sections" ] && add_extra_nl=1
-  gawk -v rename="$rename" -v add_extra_nl="$add_extra_nl" '
-    NR==1 {
-        print rename # Replace first line
-    }
-    NR>1 {
-        print # Print all other lines
-    }
-    {
-        last_line = $0 # Track last line
-    }
-    END {
-        if (add_extra_nl && last_line != "") {
-            print "" # Extra newline for last section
-        }
-    }
-  ' <"$TARGET/$CONTENT/$target"
-  i=$((i + 1))
-done
+  printf "%s\n" "$rename" >&4
+  tail -n +2 "$TARGET/$CONTENT/$target" >&4
+
+done <"$TARGET/$SHUFFLES"
