@@ -24,12 +24,12 @@ will end up with the sections and their contents shuffled like so:
 
 ```sh
 # Here installed as shuffle, otherwise call shuffle.sh
-shuffle -ip <target_dir> <input_stream > output.md
+shuffle -i target_dir <input >output
 shuffle -h # or --help
 shuffle -v # or -V or --version
 ```
 
-## Why Shuffle
+## Why shuffle
 
 `shuffle` allows you to merge, filter, reorder and rename any markdown you pipe
 into it.
